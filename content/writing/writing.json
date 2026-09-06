@@ -1,0 +1,6 @@
+{
+  "layout": "post.njk",
+  "tags": "writing",
+  "backLink": "/writing/",
+  "permalink": "writing/{{ page.fileSlug }}/index.html"
+}

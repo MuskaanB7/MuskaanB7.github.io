@@ -1,0 +1,19 @@
+---
+layout: base.njk
+navActive: writing
+permalink: writing/index.html
+eleventyExcludeFromCollections: true
+title: Writing
+---
+<h1>Writing</h1>
+<p class="intro-line">Notes on hiring, comp, and the parts of company-building that don't fit neatly into a policy doc.</p>
+
+<div class="entry-list">
+{% for post in collections.writing | sort(false, false, "data.order") %}
+  <a class="entry" href="{{ post.url }}">
+    <span class="entry-title">{{ post.data.title }}</span>
+    <span class="entry-meta">{{ post.data.meta }}</span>
+    <p class="entry-desc">{{ post.data.description }}</p>
+  </a>
+{% endfor %}
+</div>

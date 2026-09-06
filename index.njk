@@ -1,0 +1,26 @@
+---
+layout: base.njk
+navActive: home
+permalink: /index.html
+---
+<h1>{{ home.title }}</h1>
+
+<div class="section">
+  <h2>Some things about me</h2>
+  <ul class="plain-list">
+  {% for item in home.about %}
+    <li>{{ item }}</li>
+  {% endfor %}
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Some things I'm interested in</h2>
+  <ul class="plain-list">
+  {% for item in home.interests %}
+    <li>{{ item }}</li>
+  {% endfor %}
+  </ul>
+</div>
+
+<p>Check out my <a href="/writing/">writing</a>, <a href="/playbooks/">playbooks</a>, and <a href="/reading/">reading</a>.</p>

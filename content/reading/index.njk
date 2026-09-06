@@ -1,0 +1,19 @@
+---
+layout: base.njk
+navActive: reading
+permalink: reading/index.html
+eleventyExcludeFromCollections: true
+title: Reading
+---
+<h1>Reading</h1>
+<p class="intro-line">Books and pieces that changed how I think about people, work, and organizations.</p>
+
+<div class="entry-list">
+{% for post in collections.reading | sort(false, false, "data.order") %}
+  <a class="entry" href="{{ post.url }}">
+    <span class="entry-title">{{ post.data.title }}</span>
+    <span class="entry-meta">{{ post.data.meta }}</span>
+    <p class="entry-desc">{{ post.data.description }}</p>
+  </a>
+{% endfor %}
+</div>

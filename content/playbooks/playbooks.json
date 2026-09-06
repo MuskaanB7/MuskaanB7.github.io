@@ -1,0 +1,6 @@
+{
+  "layout": "post.njk",
+  "tags": "playbooks",
+  "backLink": "/playbooks/",
+  "permalink": "playbooks/{{ page.fileSlug }}/index.html"
+}

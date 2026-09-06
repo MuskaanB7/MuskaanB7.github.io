@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --ink: #1A1A18;
+  --paper: #FAF9F6;
+  --teal: #2F5D50;
+  --grey: #6B6B63;
+  --hairline: #E4E1D8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--teal); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+
+header.site-header {
+  margin-bottom: 48px;
+}
+
+.nav-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.95rem;
+}
+
+.nav-row nav ul,
+.nav-row .find-me ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.nav-row a {
+  color: var(--ink);
+}
+
+.nav-row a:hover { color: var(--teal); }
+
+.nav-row a.active {
+  color: var(--teal);
+  font-weight: 500;
+}
+
+.find-me { color: var(--grey); }
+.find-me ul { color: var(--grey); }
+.find-me a { color: var(--grey); }
+.find-me a:hover { color: var(--teal); }
+
+h1 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
+.section { margin-bottom: 36px; }
+
+ul.plain-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+ul.plain-list li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 14px;
+}
+
+ul.plain-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--grey);
+}
+
+p { margin-bottom: 14px; }
+
+.intro-line {
+  color: var(--grey);
+  margin-bottom: 36px;
+}
+
+/* index list of entries (writing / playbooks / reading) */
+.entry-list {
+  border-top: 1px solid var(--hairline);
+}
+
+.entry {
+  display: block;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.entry .entry-title {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 1.02rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.entry:hover .entry-title { color: var(--teal); }
+
+.entry .entry-meta {
+  color: var(--grey);
+  font-size: 0.88rem;
+}
+
+.entry .entry-desc {
+  color: var(--grey);
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+footer.site-footer {
+  margin-top: 64px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+  color: var(--grey);
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 500px) {
+  .wrap { padding: 40px 20px 60px; }
+  h1 { font-size: 1.6rem; }
+  footer.site-footer { flex-direction: column; gap: 6px; }
+}

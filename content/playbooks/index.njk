@@ -1,0 +1,19 @@
+---
+layout: base.njk
+navActive: playbooks
+permalink: playbooks/index.html
+eleventyExcludeFromCollections: true
+title: Playbooks
+---
+<h1>Playbooks</h1>
+<p class="intro-line">Longer, practical frameworks — the kind of thing I wish someone had handed me instead of making me figure it out mid-crisis.</p>
+
+<div class="entry-list">
+{% for post in collections.playbooks | sort(false, false, "data.order") %}
+  <a class="entry" href="{{ post.url }}">
+    <span class="entry-title">{{ post.data.title }}</span>
+    <span class="entry-meta">{{ post.data.meta }}</span>
+    <p class="entry-desc">{{ post.data.description }}</p>
+  </a>
+{% endfor %}
+</div>

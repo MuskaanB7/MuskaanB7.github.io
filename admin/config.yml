@@ -1,0 +1,69 @@
+backend:
+  name: github
+  # IMPORTANT: change this to your own GitHub username/repo-name after you create the repo
+  repo: YOUR-GITHUB-USERNAME/YOUR-REPO-NAME
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "settings"
+    label: "Site Settings"
+    files:
+      - file: "_data/site.json"
+        label: "Site Info"
+        name: "site"
+        fields:
+          - { label: "Name", name: "name", widget: "string" }
+          - { label: "Role / tagline", name: "role", widget: "string" }
+          - { label: "LinkedIn URL", name: "linkedin", widget: "string" }
+          - { label: "Substack URL", name: "substack", widget: "string" }
+          - { label: "Twitter URL", name: "twitter", widget: "string" }
+
+      - file: "_data/home.json"
+        label: "Home Page"
+        name: "home"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "About Me (one item per point)", name: "about", widget: "list" }
+          - { label: "Interests (one item per point)", name: "interests", widget: "list" }
+
+  - name: "writing"
+    label: "Writing"
+    folder: "content/writing"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Order (lower shows first)", name: "order", widget: "number", default: 1 }
+      - { label: "Meta (e.g. a date like 'March 2026')", name: "meta", widget: "string" }
+      - { label: "Description (short summary)", name: "description", widget: "text" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "playbooks"
+    label: "Playbooks"
+    folder: "content/playbooks"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Order (lower shows first)", name: "order", widget: "number", default: 1 }
+      - { label: "Meta (e.g. '45 min read')", name: "meta", widget: "string" }
+      - { label: "Description (short summary)", name: "description", widget: "text" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "reading"
+    label: "Reading"
+    folder: "content/reading"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Order (lower shows first)", name: "order", widget: "number", default: 1 }
+      - { label: "Category (e.g. 'Management')", name: "meta", widget: "string" }
+      - { label: "Description (short summary)", name: "description", widget: "text" }
+      - { label: "Body", name: "body", widget: "markdown" }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} — {{ site.name }}</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site-header">
+    <div class="nav-row">
+      <nav><ul>
+        <li><a href="/" {% if navActive == "home" %}class="active"{% endif %}>Home</a></li>
+        <li><a href="/writing/" {% if navActive == "writing" %}class="active"{% endif %}>Writing</a></li>
+        <li><a href="/playbooks/" {% if navActive == "playbooks" %}class="active"{% endif %}>Playbooks</a></li>
+        <li><a href="/reading/" {% if navActive == "reading" %}class="active"{% endif %}>Reading</a></li>
+      </ul></nav>
+      <div class="find-me"><ul>
+        <li><a href="{{ site.linkedin }}">LinkedIn</a></li>
+        <li><a href="{{ site.substack }}">Substack</a></li>
+        <li><a href="{{ site.twitter }}">Twitter</a></li>
+      </ul></div>
+    </div>
+  </header>
+
+  {{ content | safe }}
+
+  <footer class="site-footer">
+    <span>{{ site.name }}</span>
+    <span>{{ site.role }}</span>
+  </footer>
+
+</div>
+</body>
+</html>
