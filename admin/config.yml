@@ -1,7 +1,7 @@
 backend:
   name: github
   # IMPORTANT: change this to your own GitHub username/repo-name after you create the repo
-  repo: YOUR-GITHUB-USERNAME/YOUR-REPO-NAME
+  repo:  MuskaanB7/My-Site
   branch: main
 
 media_folder: "images/uploads"
