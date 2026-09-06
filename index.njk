@@ -9,7 +9,7 @@ permalink: /index.html
   <h2>Some things about me</h2>
   <ul class="plain-list">
   {% for item in home.about %}
-    <li>{{ item }}</li>
+<li>{{ item | safe }}</li>
   {% endfor %}
   </ul>
 </div>
@@ -18,7 +18,7 @@ permalink: /index.html
   <h2>Some things I'm interested in</h2>
   <ul class="plain-list">
   {% for item in home.interests %}
-    <li>{{ item }}</li>
+  <li>{{ item | safe }}</li>
   {% endfor %}
   </ul>
 </div>
