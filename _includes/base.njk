@@ -1,108 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} — {{ site.name }}</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="page-wrap">
 
-:root {
-  --ink: #1a1a18;
-  --paper: #ffffff;
-  --teal: #2f5d50;
-  --grey: #6b6b63;
-  --hairline: #e4e1d8;
-}
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <nav><ul>
+        <li><a href="/" {% if navActive == "home" %}class="active"{% endif %}>Home</a></li>
+        <li><a href="/writing/" {% if navActive == "writing" %}class="active"{% endif %}>Writing</a></li>
+        <li><a href="/playbooks/" {% if navActive == "playbooks" %}class="active"{% endif %}>Playbooks</a></li>
+        <li><a href="/reading/" {% if navActive == "reading" %}class="active"{% endif %}>Reading</a></li>
+      </ul></nav>
+    </div>
+    <div class="sidebar-section find-me">
+      <div class="sidebar-label">Find me on</div>
+      <ul>
+        <li><a href="{{ site.linkedin }}">LinkedIn</a></li>
+        <li><a href="{{ site.substack }}">Substack</a></li>
+        <li><a href="{{ site.twitter }}">Twitter</a></li>
+      </ul>
+    </div>
+  </aside>
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+  <main class="main-content">
+    {{ content | safe }}
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 18px;
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-}
+    <footer class="site-footer">
+      <span>{{ site.name }}</span>
+      <span>{{ site.role }}</span>
+    </footer>
+  </main>
 
-a { color: #3b5bdb; text-decoration: none; }
-a:hover { text-decoration: underline; text-underline-offset: 3px; }
-a:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-
-.page-wrap {
-  display: flex;
-  gap: 72px;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 64px 24px 96px;
-  align-items: flex-start;
-}
-
-.sidebar {
-  width: 170px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 64px;
-}
-
-.sidebar-section { margin-bottom: 40px; }
-
-.sidebar-label {
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.03em;
-  margin-bottom: 14px;
-  color: var(--ink);
-}
-
-.sidebar nav ul,
-.sidebar .find-me ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sidebar a { color: var(--grey); font-size: 1.05rem; }
-.sidebar a.active { color: var(--ink); font-weight: 600; }
-.sidebar a:hover { color: var(--ink); }
-
-.main-content { flex: 1; min-width: 0; max-width: 640px; }
-
-h1 {
-  font-size: 2.6rem;
-  font-weight: 700;
-  margin-bottom: 32px;
-  letter-spacing: -0.01em;
-}
-
-h2 { font-size: 1.15rem; font-weight: 700; margin: 0 0 14px; }
-
-.section { margin-bottom: 32px; }
-
-ul.plain-list { list-style: none; padding-left: 0; }
-ul.plain-list li { position: relative; padding-left: 22px; margin-bottom: 16px; }
-ul.plain-list li::before { content: '•'; position: absolute; left: 0; color: var(--grey); }
-
-p { margin-bottom: 16px; }
-
-.intro-line { color: var(--grey); margin-bottom: 32px; }
-
-.entry-list { border-top: 1px solid var(--hairline); }
-.entry { display: block; padding: 22px 0; border-bottom: 1px solid var(--hairline); }
-.entry .entry-title { color: var(--ink); font-weight: 600; font-size: 1.1rem; display: block; margin-bottom: 6px; }
-.entry:hover .entry-title { color: var(--teal); }
-.entry .entry-meta { color: var(--grey); font-size: 0.9rem; }
-.entry .entry-desc { color: var(--grey); font-size: 1rem; margin-top: 6px; }
-
-footer.site-footer {
-  margin-top: 56px;
-  padding-top: 20px;
-  border-top: 1px solid var(--hairline);
-  color: var(--grey);
-  font-size: 0.85rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-@media (max-width: 700px) {
-  .page-wrap { flex-direction: column; gap: 40px; padding: 40px 20px 60px; }
-  .sidebar { position: static; width: 100%; display: flex; gap: 40px; }
-  .sidebar-section { margin-bottom: 0; }
-  h1 { font-size: 2rem; }
-  footer.site-footer { flex-direction: column; gap: 6px; }
-}
+</div>
+</body>
+</html>
