@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job description tracker</title>
+<style>
+  :root{
+    --ink:#111;
+    --gray:#666;
+    --faint:#999;
+    --line:#ddd;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#fff;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:64px 24px 96px;
+  }
+  h1{
+    font-size:17px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .sub{
+    font-size:14px;
+    color:var(--gray);
+    line-height:1.6;
+    margin:0 0 28px;
+    max-width:56ch;
+  }
+  .row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .row label{font-size:12px;color:var(--faint);}
+  select{
+    font-family:inherit;
+    font-size:13px;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:6px 10px;
+    background:#fff;
+  }
+  .dept-note{
+    font-size:12px;
+    color:var(--gray);
+    margin:-6px 0 16px;
+    line-height:1.5;
+  }
+  .field-label{
+    font-size:12px;
+    color:var(--faint);
+    margin-bottom:8px;
+    display:flex;
+    justify-content:space-between;
+  }
+  textarea{
+    width:100%;
+    min-height:220px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:12px 14px;
+    font-family:inherit;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--ink);
+    resize:vertical;
+    outline:none;
+  }
+  textarea:focus{border-color:var(--ink);}
+  textarea::placeholder{color:var(--faint);}
+  .actions{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-top:16px;
+  }
+  button.primary{
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    padding:9px 18px;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    border-radius:3px;
+  }
+  button.primary:hover{background:#333;}
+  button.primary:disabled{background:var(--faint);cursor:default;}
+  .sample-link{
+    font-size:13px;
+    color:var(--gray);
+    text-decoration:underline;
+    text-underline-offset:2px;
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    font-family:inherit;
+  }
+  .sample-link:hover{color:var(--ink);}
+  .error{
+    font-size:13px;
+    color:#a33;
+    margin-top:10px;
+  }
+  #results{display:none;margin-top:48px;}
+  hr.div{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:0 0 24px;
+  }
+  .summary{
+    font-size:14px;
+    color:var(--gray);
+    line-height:1.6;
+    margin-bottom:8px;
+  }
+  .score-line{
+    font-size:13px;
+    color:var(--faint);
+    margin-bottom:32px;
+  }
+  .score-line b{color:var(--ink);font-weight:600;}
+  .sections{display:flex;flex-direction:column;}
+  .sec{
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .sec:first-child{border-top:1px solid var(--line);}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:5px;
+  }
+  .sec-label{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .sec-label .num{color:var(--faint);font-weight:400;margin-right:6px;}
+  .sec-status{
+    font-size:12px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .sec-status.present{color:var(--faint);}
+  .sec-status.missing{color:var(--gray);}
+  .sec-status.generic{color:var(--gray);font-style:italic;}
+  .sec p.note{
+    margin:0;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--gray);
+  }
+  .sec .example{
+    margin:8px 0 0;
+    padding:8px 12px;
+    background:#fafafa;
+    border-left:2px solid var(--line);
+    font-size:13px;
+    line-height:1.55;
+    color:var(--ink);
+    font-style:italic;
+  }
+  .sec .example b{
+    font-style:normal;
+    font-weight:600;
+    color:var(--faint);
+    font-size:11px;
+    display:block;
+    margin-bottom:3px;
+    text-transform:none;
+  }
+  .loading{
+    display:none;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--gray);
+    margin-top:14px;
+  }
+  .loading .spin{
+    width:12px;height:12px;
+    border:2px solid #eee;
+    border-top-color:var(--ink);
+    border-radius:50%;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .compliance{
+    display:none;
+    margin-bottom:28px;
+    padding:12px 14px;
+    border:1px solid var(--ink);
+    border-radius:3px;
+    font-size:13px;
+    line-height:1.55;
+  }
+  .compliance.flagged{border-color:#a33;}
+  .compliance .ctitle{font-weight:600;margin-bottom:3px;display:block;}
+  .compliance .cnote{color:var(--gray);font-size:12px;margin-top:6px;display:block;}
+  .mindset{
+    display:none;
+    margin-bottom:32px;
+    padding:14px 16px;
+    background:#fafafa;
+    border-radius:3px;
+  }
+  .mindset h2.section{margin-bottom:10px;}
+  .mindset ul{
+    margin:0;
+    padding-left:18px;
+  }
+  .mindset li{
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--gray);
+    margin-bottom:8px;
+  }
+  .mindset li:last-child{margin-bottom:0;}
+  button.secondary-btn{
+    display:block;
+    margin-top:36px;
+    background:#fff;
+    color:var(--ink);
+    border:1px solid var(--line);
+  }
+  button.secondary-btn:hover{border-color:var(--ink);background:#fafafa;}
+  #draft-panel{
+    margin-top:20px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:14px;
+    line-height:1.7;
+    white-space:pre-wrap;
+  }
+  .copy-btn{
+    margin-top:14px;
+    font-size:12px;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--gray);
+    padding:6px 12px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  .copy-btn:hover{border-color:var(--ink);color:var(--ink);}
+  h2.section{
+    font-size:13px;
+    font-weight:600;
+    margin:0;
+    color:var(--ink);
+  }
+  #history-wrap{display:none;}
+  .hist-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:14px;
+  }
+  .hist-item{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .hist-item:first-child{border-top:1px solid var(--line);}
+  .hist-item .hi-left{color:var(--gray);}
+  .hist-item .hi-left b{color:var(--ink);font-weight:600;}
+  .hist-item .hi-right{color:var(--faint);white-space:nowrap;}
+  footer.note{
+    margin-top:56px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--faint);
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Job description tracker</h1>
+  <p class="sub">Checks a job post against the sections that help an early-stage startup attract strong applicants. Built after researching thousands of job posts to see which ones attract more candidates and which roles get filled quickest — and it thinks through role-specific psychology: what a strong candidate for this exact job would actually want to see before applying.</p>
+
+  <div class="row">
+    <label for="role-select">department</label>
+    <select id="role-select">
+      <option value="engineering">Engineering</option>
+      <option value="data_ml">Data / analytics / ML</option>
+      <option value="product">Product</option>
+      <option value="design">Design</option>
+      <option value="sales">Sales</option>
+      <option value="marketing">Marketing</option>
+      <option value="bd_partnerships">Business development / partnerships</option>
+      <option value="customer_success">Customer success / support</option>
+      <option value="people_hr">People / HR / recruiting</option>
+      <option value="operations">Operations</option>
+      <option value="finance">Finance / accounting</option>
+      <option value="legal">Legal / compliance</option>
+      <option value="it_security">IT / security</option>
+      <option value="content_comms">Content / communications / PR</option>
+      <option value="general">Other</option>
+    </select>
+  </div>
+  <p id="dept-detect-note" class="dept-note"></p>
+
+  <div class="row">
+    <label for="state-select">location (for pay transparency check)</label>
+    <select id="state-select"></select>
+  </div>
+
+  <div class="field-label">
+    <span>Job description</span>
+    <span id="char-count">0 characters</span>
+  </div>
+  <textarea id="jd-input" placeholder="Paste the full job post — title, responsibilities, requirements."></textarea>
+
+  <div class="actions">
+    <button class="primary" id="grade-btn">Check it</button>
+    <button class="sample-link" id="sample-btn">try a sample</button>
+  </div>
+  <div class="loading" id="loading"><div class="spin"></div><span>reading it closely</span></div>
+  <div class="error" id="error-msg"></div>
+
+  <div id="results">
+    <hr class="div">
+    <p class="summary" id="summary-text"></p>
+    <p class="score-line" id="score-line"></p>
+
+    <div id="compliance" class="compliance"></div>
+
+    <div id="mindset" class="mindset">
+      <h2 class="section" id="mindset-title"></h2>
+      <ul id="mindset-list"></ul>
+    </div>
+
+    <div class="sections" id="sections"></div>
+
+    <button class="primary secondary-btn" id="draft-btn">Draft a stronger version using these suggestions</button>
+    <div class="loading" id="draft-loading"><div class="spin"></div><span>drafting</span></div>
+    <div id="draft-panel" style="display:none;">
+      <div id="draft-body"></div>
+      <button class="copy-btn" id="draft-copy-btn">copy</button>
+    </div>
+  </div>
+
+  <div id="history-wrap">
+    <hr class="div">
+    <div class="hist-head">
+      <h2 class="section">your check history</h2>
+      <button class="sample-link" id="clear-history-btn">clear</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <footer class="note">Uses Claude to review your job post. The job description text itself is never stored — only a short score history (role, state, date, score) is saved locally so you can track improvement across edits.</footer>
+</div>
+
+<script>
+const US_STATES = [
+  ["US-AL","Alabama"], ["US-AK","Alaska"], ["US-AZ","Arizona"], ["US-AR","Arkansas"],
+  ["US-CA","California"], ["US-CO","Colorado"], ["US-CT","Connecticut"], ["US-DE","Delaware"], ["US-DC","District of Columbia"],
+  ["US-FL","Florida"], ["US-GA","Georgia"], ["US-HI","Hawaii"], ["US-ID","Idaho"], ["US-IL","Illinois"], ["US-IN","Indiana"],
+  ["US-IA","Iowa"], ["US-KS","Kansas"], ["US-KY","Kentucky"], ["US-LA","Louisiana"], ["US-ME","Maine"], ["US-MD","Maryland"],
+  ["US-MA","Massachusetts"], ["US-MI","Michigan"], ["US-MN","Minnesota"], ["US-MS","Mississippi"], ["US-MO","Missouri"],
+  ["US-MT","Montana"], ["US-NE","Nebraska"], ["US-NV","Nevada"], ["US-NH","New Hampshire"], ["US-NJ","New Jersey"],
+  ["US-NM","New Mexico"], ["US-NY","New York"], ["US-NC","North Carolina"], ["US-ND","North Dakota"], ["US-OH","Ohio"],
+  ["US-OK","Oklahoma"], ["US-OR","Oregon"], ["US-PA","Pennsylvania"], ["US-RI","Rhode Island"], ["US-SC","South Carolina"],
+  ["US-SD","South Dakota"], ["US-TN","Tennessee"], ["US-TX","Texas"], ["US-UT","Utah"], ["US-VT","Vermont"], ["US-VA","Virginia"],
+  ["US-WA","Washington"], ["US-WV","West Virginia"], ["US-WI","Wisconsin"], ["US-WY","Wyoming"]
+];
+
+const CANADA_PROVINCES = [
+  ["CA-BC","British Columbia"], ["CA-ON","Ontario"], ["CA-PE","Prince Edward Island"],
+  ["CA-NS","Nova Scotia"], ["CA-NL","Newfoundland and Labrador"],
+  ["CA-OTHER","Other Canadian province/territory"]
+];
+
+const OTHER_LOCATIONS = [
+  ["EU","European Union (any member state)"],
+  ["UK","United Kingdom"],
+  ["AU","Australia"],
+  ["OTHER","Not sure / elsewhere / remote across markets"]
+];
+
+const LOCATION_NAME = {};
+US_STATES.forEach(([c,n]) => LOCATION_NAME[c] = n);
+CANADA_PROVINCES.forEach(([c,n]) => LOCATION_NAME[c] = n);
+OTHER_LOCATIONS.forEach(([c,n]) => LOCATION_NAME[c] = n);
+
+// Best-known status as of mid-2026. Laws change fast and this is not legal advice.
+const SALARY_LAW_TIER = {
+  "US-CA":"posting", "US-CO":"posting", "US-HI":"posting", "US-IL":"posting", "US-MD":"posting", "US-MA":"posting", "US-MN":"posting",
+  "US-NJ":"posting", "US-NY":"posting", "US-VT":"posting", "US-WA":"posting", "US-VA":"posting", "US-DC":"posting", "US-ME":"posting",
+  "US-CT":"on_request", "US-NV":"on_request", "US-RI":"on_request",
+  "CA-BC":"posting", "CA-ON":"posting_ontario", "CA-PE":"posting", "CA-NS":"posting", "CA-NL":"posting",
+  "EU":"eu_directive",
+  "UK":"none_uk",
+  "AU":"none_au"
+};
+
+const stateSelectEl = document.getElementById('state-select');
+function addLocationGroup(label, list){
+  const group = document.createElement('optgroup');
+  group.label = label;
+  list.forEach(([code, name]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = name;
+    group.appendChild(opt);
+  });
+  stateSelectEl.appendChild(group);
+}
+(() => {
+  const blank = document.createElement('option');
+  blank.value = '';
+  blank.textContent = 'Select a location (optional)';
+  stateSelectEl.appendChild(blank);
+})();
+addLocationGroup('United States', US_STATES);
+addLocationGroup('Canada', CANADA_PROVINCES);
+addLocationGroup('Europe', [["EU","European Union (any member state)"], ["UK","United Kingdom"]]);
+addLocationGroup('Other', [["AU","Australia"], ["OTHER","Not sure / elsewhere / remote across markets"]]);
+
+function complianceMessage(locationCode, salaryMentioned){
+  const panel = document.getElementById('compliance');
+  if (!locationCode){
+    panel.style.display = 'none';
+    return;
+  }
+  const tier = SALARY_LAW_TIER[locationCode];
+  const name = LOCATION_NAME[locationCode] || locationCode;
+  panel.style.display = 'block';
+  panel.classList.remove('flagged');
+
+  if (tier === 'posting'){
+    if (salaryMentioned){
+      panel.innerHTML = `<span class="ctitle">pay transparency: covered</span>${name} requires a salary range in the posting itself, and this post includes one.<span class="cnote">Not legal advice — confirm the range meets local specific requirements.</span>`;
+    } else {
+      panel.classList.add('flagged');
+      panel.innerHTML = `<span class="ctitle">pay transparency: action needed</span>${name} legally requires a salary range in the job posting itself. This post doesn't appear to include one.<span class="cnote">Not legal advice — confirm requirements with counsel before publishing.</span>`;
+    }
+  } else if (tier === 'posting_ontario'){
+    if (salaryMentioned){
+      panel.innerHTML = `<span class="ctitle">pay transparency: covered</span>Ontario requires a salary range in the posting (for employers with 25+ employees), and this post includes one. Ontario also caps the range at a $50,000 spread unless the role pays over $200,000 — worth a quick check.<span class="cnote">Not legal advice — confirm the range meets Ontario's specific requirements.</span>`;
+    } else {
+      panel.classList.add('flagged');
+      panel.innerHTML = `<span class="ctitle">pay transparency: action needed</span>Ontario legally requires a salary range in the posting (employers with 25+ employees), capped at a $50,000 spread unless the role pays over $200,000. This post doesn't appear to include one.<span class="cnote">Not legal advice — confirm requirements with counsel before publishing.</span>`;
+    }
+  } else if (tier === 'on_request'){
+    panel.innerHTML = `<span class="ctitle">pay transparency: disclose on request</span>${name} requires salary disclosure if a candidate asks or before an offer, though not necessarily in the posting itself.${salaryMentioned ? ' This post already includes a range, which covers it either way.' : ''}<span class="cnote">Not legal advice — confirm requirements with counsel.</span>`;
+  } else if (tier === 'eu_directive'){
+    panel.innerHTML = `<span class="ctitle">pay transparency: EU directive</span>The EU Pay Transparency Directive (in force by 7 June 2026 across member states) requires the initial pay or pay range to be disclosed either in the job posting or before the first interview — either path satisfies it, though more employers are defaulting to the posting. ${salaryMentioned ? 'This post already includes a range.' : "This post doesn't include one — make sure it's shared before the first interview if not here."} It also bans asking candidates about salary history.<span class="cnote">Not legal advice — exact implementation varies by member state; confirm locally.</span>`;
+  } else if (tier === 'none_uk'){
+    panel.innerHTML = `<span class="ctitle">pay transparency</span>No UK law currently requires a salary range in the posting itself. Employers with 250+ employees must report gender pay gap data separately, but that's not tied to individual postings. Including a range is still a rising norm and can help you stand out.<span class="cnote">Laws change — verify independently, especially given the EU directive's spillover pressure on multinational employers.</span>`;
+  } else if (tier === 'none_au'){
+    panel.innerHTML = `<span class="ctitle">pay transparency</span>No Australian law currently requires a salary range in the posting itself, though pay secrecy clauses are illegal and employees have a protected right to discuss pay once hired. Any rate you do advertise must meet the applicable minimum wage or award rate.<span class="cnote">Not legal advice — confirm applicable awards and requirements with counsel.</span>`;
+  } else {
+    panel.innerHTML = `<span class="ctitle">pay transparency</span>No specific posting-disclosure law is confirmed for ${name} here, but including a range still tends to attract stronger applicants.<span class="cnote">Laws change and this list may not be current — verify independently for anything remote or multi-market.</span>`;
+  }
+}
+
+const SAMPLE_JD = {
+  engineering: `Backend Engineer
+
+We're looking for a Backend Engineer to join our team.
+
+Requirements:
+- 5+ years of experience
+- Strong knowledge of distributed systems
+- Bachelor's degree in CS or related field
+- Experience with microservices
+
+We offer competitive salary and benefits. Send your resume to jobs@startup.com.`,
+  sales: `Account Executive
+
+We're looking for a hungry Account Executive to drive revenue growth.
+
+Requirements:
+- 3+ years of SaaS sales experience
+- Proven track record of exceeding quota
+- Excellent communication skills
+
+Competitive compensation. Apply now.`,
+  marketing: `Growth Marketing Manager
+
+We need a Growth Marketing Manager to own our marketing strategy.
+
+Requirements:
+- 4+ years in growth marketing
+- Data-driven mindset
+- Experience with paid and organic channels
+
+Competitive salary. Send us your resume.`,
+  product: `Product Manager
+
+We're hiring a Product Manager to own our roadmap.
+
+Requirements:
+- 3+ years of PM experience
+- Strong analytical skills
+- Bachelor's degree required
+
+Competitive compensation and benefits.`,
+  design: `Product Designer
+
+Looking for a Product Designer to shape our product experience.
+
+Requirements:
+- 3+ years of product design experience
+- Strong portfolio
+- Experience with Figma
+
+Competitive salary.`,
+  customer_success: `Customer Success Manager
+
+We're hiring a CSM to manage our customer relationships.
+
+Requirements:
+- 2+ years in customer success
+- Strong communication skills
+- SaaS experience preferred
+
+Competitive compensation.`,
+  people_hr: `People Operations Manager
+
+We need a People Ops Manager to build our HR function from scratch.
+
+Requirements:
+- 3+ years in HR/People Ops
+- Experience with HRIS systems
+- Strong organizational skills
+
+Competitive salary and benefits.`,
+  operations: `Operations Manager
+
+We're looking for an Operations Manager to keep the company running smoothly.
+
+Requirements:
+- 3+ years in operations
+- Strong organizational skills
+- Comfortable with ambiguity
+
+Competitive compensation.`,
+  finance: `Finance Manager
+
+We're looking for a Finance Manager to own our financial operations.
+
+Requirements:
+- 4+ years in finance or accounting
+- Experience with financial modeling
+- CPA preferred
+
+Competitive compensation.`,
+  data_ml: `Machine Learning Engineer
+
+We're looking for an ML Engineer to build our AI-powered features.
+
+Requirements:
+- 3+ years of ML experience
+- Strong Python skills
+- Experience with production ML systems
+
+Competitive salary.`,
+  bd_partnerships: `Partnerships Manager
+
+We're hiring a Partnerships Manager to grow our partner ecosystem.
+
+Requirements:
+- 3+ years in business development
+- Strong negotiation skills
+- Track record of closing deals
+
+Competitive compensation.`,
+  legal: `Corporate Counsel
+
+We're looking for our first in-house counsel to support the legal needs of a growing company.
+
+Requirements:
+- JD and active bar membership
+- 4+ years of relevant experience
+- Comfortable working independently
+
+Competitive compensation.`,
+  it_security: `Security Engineer
+
+We're hiring a Security Engineer to protect our systems and data.
+
+Requirements:
+- 3+ years in security engineering
+- Experience with cloud security
+- Relevant certifications a plus
+
+Competitive salary.`,
+  content_comms: `Content Marketing Lead
+
+We're looking for a Content Lead to own our brand voice and storytelling.
+
+Requirements:
+- 4+ years in content or communications
+- Excellent writing skills
+- Experience managing multiple channels
+
+Competitive compensation.`,
+  general: `Marketing Manager
+
+We're hiring a Marketing Manager to own our growth strategy.
+
+Requirements:
+- 3+ years in B2B marketing
+- Excellent communication skills
+- Self-starter, comfortable with ambiguity
+
+Competitive compensation. Apply by sending your resume.`
+};
+
+function buildTemplate(cfg){
+  return [
+    { key: "team_composition", label: cfg.teamLabel, suggestion_only: true, desc: cfg.teamDesc },
+    { key: "current_work", label: "What the team currently works on", desc: cfg.currentWorkDesc },
+    { key: "testimonials", label: cfg.testimonialsLabel, desc: cfg.testimonialsDesc },
+    { key: "mission", label: "Mission", desc: "Why the company exists, beyond the product description." },
+    { key: "role", label: "The role", desc: cfg.roleDesc },
+    { key: "qualifications", label: "Qualifications", desc: "Checks for generic/bloated requirement lists, and whether it encourages applying even without meeting every requirement." },
+    { key: cfg.seventhKey, label: cfg.seventhLabel, desc: cfg.seventhDesc },
+    { key: "interview_process", label: "Interview process", desc: "Number of rounds and rough timeline, so candidates know what to expect." },
+    { key: "faq", label: "FAQ / proof points", desc: cfg.faqDesc }
+  ];
+}
+
+const ROLE_TEMPLATES = {
+  engineering: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say whether the team is mostly new grad/intern, a junior/mid/senior mix, or has a founding engineer? Helps a candidate self-select immediately.",
+    currentWorkDesc: "5-6 concrete, specific technical points about real current work — not vague 'cutting-edge tech' language.",
+    testimonialsLabel: "Engineer testimonials",
+    testimonialsDesc: "Actual quotes from people currently on the team.",
+    roleDesc: "Specific, interesting technical problems this person will solve — not a generic task list or 'wear many hats'.",
+    seventhKey: "tech_stack", seventhLabel: "Tech stack",
+    seventhDesc: "Specific languages, frameworks, and tools actually used — not just 'modern tech stack'.",
+    faqDesc: "Funding stage, notable investors, notable customers or logos, revenue growth, other concrete signals of traction."
+  }),
+  sales: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say whether reps are mostly SDR-to-AE ramping, a junior/senior mix, or has a path to management? Sales candidates size up the team fast.",
+    currentWorkDesc: "Concrete detail on what reps actually sell right now: deal size, sales cycle, inbound vs outbound split, who they sell to.",
+    testimonialsLabel: "Rep testimonials",
+    testimonialsDesc: "Quotes from current reps — ideally touching on earnings, ramp, or culture, since that's what sales candidates actually want to hear from peers.",
+    roleDesc: "The specific selling motion and why buyers say yes — not generic 'drive revenue' language.",
+    seventhKey: "compensation_structure", seventhLabel: "Compensation structure",
+    seventhDesc: "OTE, base/variable split, commission structure, and quota. Sales candidates evaluate this before almost anything else — vague comp language is a bigger red flag here than in most other roles.",
+    faqDesc: "Proof points sales candidates actually care about: average deal size, top rep earnings or quota attainment rate, funding stage, notable investors, notable logos, revenue growth."
+  }),
+  marketing: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix, who they'd report to, or team size? Helps candidates gauge how much ownership they'd realistically get.",
+    currentWorkDesc: "Concrete detail on current campaigns, channels, or growth initiatives — not vague 'brand building' language.",
+    testimonialsLabel: "Marketer testimonials",
+    testimonialsDesc: "Quotes from current marketers on the team.",
+    roleDesc: "The specific brand or growth problems this person owns, and what budget/channels they control — not generic 'wear many hats'.",
+    seventhKey: "tools_ownership", seventhLabel: "Budget and tools",
+    seventhDesc: "Actual budget size and channels/tools owned, not just 'marketing tools'. Marketers want to know the scale they're working with.",
+    faqDesc: "Traction proof marketers care about: growth numbers, notable campaigns, funding stage, notable investors, logos, revenue growth."
+  }),
+  product: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix of the product/eng org this person would work within?",
+    currentWorkDesc: "Concrete detail on the current roadmap and problems actively being worked, not vague 'innovative products' language.",
+    testimonialsLabel: "PM testimonials",
+    testimonialsDesc: "Quotes from current product managers or close collaborators (eng/design leads).",
+    roleDesc: "Specific user or business problems this person owns, and how much roadmap/data access they'll have — not generic 'own the roadmap'.",
+    seventhKey: "tools_process", seventhLabel: "Tools and process",
+    seventhDesc: "How product decisions actually get made, access to user/data research, and tools used — not just 'data-driven culture'.",
+    faqDesc: "Traction proof: user growth, funding stage, notable investors, notable customers, revenue growth."
+  }),
+  design: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the design team this person would join?",
+    currentWorkDesc: "Concrete detail on current design problems or systems being worked on, not vague 'beautiful products' language.",
+    testimonialsLabel: "Designer testimonials",
+    testimonialsDesc: "Quotes from current designers on the team.",
+    roleDesc: "Specific design ownership and craft problems — not generic 'pixel-perfect' language with no real scope described.",
+    seventhKey: "tools_process", seventhLabel: "Tools and craft autonomy",
+    seventhDesc: "Design tools used, maturity of the design system, and how much creative autonomy this person actually gets.",
+    faqDesc: "Portfolio-worthy proof: launched products, brand recognition, funding stage, notable investors, notable customers."
+  }),
+  customer_success: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or team size this person would join?",
+    currentWorkDesc: "Concrete detail on the current customer base/segment this person would support, not vague 'delight customers' language.",
+    testimonialsLabel: "CS team testimonials",
+    testimonialsDesc: "Quotes from current customer success or support team members.",
+    roleDesc: "Specific ownership — account count, escalation authority, renewal/expansion responsibility — not generic 'customer obsessed' language.",
+    seventhKey: "tools_process", seventhLabel: "Tools and escalation support",
+    seventhDesc: "Support tools used (Zendesk, Intercom, etc), and how much backing from engineering/product exists when issues escalate.",
+    faqDesc: "Proof points: retention or NPS numbers, notable customer logos, funding stage, notable investors, revenue growth."
+  }),
+  people_hr: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the People/HR function this person would join or build?",
+    currentWorkDesc: "Concrete detail on current people programs or headcount being supported, not vague 'people-first culture' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current People/HR team members or leadership.",
+    roleDesc: "Specific programs or scope this person owns (headcount supported, budget, authority) — not generic 'wear many hats'.",
+    seventhKey: "tools_process", seventhLabel: "Tools and leadership support",
+    seventhDesc: "HRIS/ATS and other tools used, and how much budget/authority and leadership buy-in this person actually has to build programs.",
+    faqDesc: "Proof points: headcount growth, funding stage, notable investors, notable culture recognitions, revenue growth."
+  }),
+  operations: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the team this person would join?",
+    currentWorkDesc: "Concrete detail on current processes or systems this person would own or improve, not vague 'drive efficiency' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current operations team members.",
+    roleDesc: "Specific scope and ownership (what systems, what decisions, what budget) — not generic 'wear many hats'.",
+    seventhKey: "tools_process", seventhLabel: "Tools and authority",
+    seventhDesc: "Systems/tools used, and budget or decision-making authority this person actually has.",
+    faqDesc: "Proof points: funding stage, notable investors, growth metrics, efficiency wins, revenue growth."
+  }),
+  finance: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the finance team, and who this person reports to (controller, CFO, founder)?",
+    currentWorkDesc: "Concrete detail on current financial systems, close process, or reporting this person would own — not vague 'financial strategy' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current finance/accounting team members or the CFO.",
+    roleDesc: "Specific scope (modeling, fundraising support, close process, board reporting) — not generic 'numbers person' language. Finance candidates want to know if this is a real strategic seat or a back-office task list.",
+    seventhKey: "tools_process", seventhLabel: "Systems and rigor",
+    seventhDesc: "Accounting/FP&A tools used (e.g. NetSuite, QuickBooks, modeling tools), and whether audit/compliance rigor is described — finance candidates read this as a signal of how mature the function is.",
+    faqDesc: "Proof points finance candidates weigh heavily: funding stage and amount raised, notable investors, runway/burn transparency if mentioned, revenue growth."
+  }),
+  data_ml: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix of the data/ML team, or whether this is a first data hire?",
+    currentWorkDesc: "5-6 concrete points on real current data/ML work — actual models, pipelines, or datasets — not vague 'AI-powered' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current data scientists/ML engineers on the team.",
+    roleDesc: "Specific technical problems and what data/scale this person gets to work with — not generic 'leverage data' language.",
+    seventhKey: "tech_stack", seventhLabel: "Data stack",
+    seventhDesc: "Specific tools and infra (e.g. warehouse, orchestration, model serving) actually used, and access to real production data/scale — not just 'modern data stack'.",
+    faqDesc: "Proof points: funding stage, notable investors, data scale (users/events/rows), notable customers, revenue growth."
+  }),
+  bd_partnerships: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the BD/partnerships team?",
+    currentWorkDesc: "Concrete detail on current partner types and deal sizes being worked, not vague 'strategic partnerships' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current BD/partnerships team members.",
+    roleDesc: "Specific deal-making scope and autonomy (who they'd negotiate with, deal size, authority to close) — not generic 'build relationships' language.",
+    seventhKey: "compensation_structure", seventhLabel: "Compensation structure",
+    seventhDesc: "Base/variable split or bonus structure tied to partnerships closed — BD candidates weigh this similarly to sales candidates.",
+    faqDesc: "Proof points: notable partner logos, funding stage, notable investors, deal volume, revenue growth from partnerships."
+  }),
+  legal: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the legal function, or whether this is a first legal hire reporting directly to the CEO?",
+    currentWorkDesc: "Concrete detail on current legal work — contract types, deal volume, regulatory areas — not vague 'manage legal matters' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current legal team members or the General Counsel.",
+    roleDesc: "Specific scope of legal work and autonomy (what they decide alone vs escalate) — not generic 'trusted advisor' language. Legal candidates weigh interesting, complex work heavily.",
+    seventhKey: "tools_process", seventhLabel: "Workload and support",
+    seventhDesc: "Whether outside counsel support exists, expected workload/hours, and decision-making authority — legal candidates read vague answers here as a red flag.",
+    faqDesc: "Proof points: funding stage, notable investors, regulatory complexity of the business, notable customers, revenue growth."
+  }),
+  it_security: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the IT/security team, or whether this is a first security hire?",
+    currentWorkDesc: "Concrete detail on current infrastructure, security posture, or IT systems being worked on, not vague 'keep us secure' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current IT/security team members.",
+    roleDesc: "Specific ownership (incident response authority, systems managed, compliance scope) — not generic 'wear many hats' language.",
+    seventhKey: "tech_stack", seventhLabel: "Tools and maturity",
+    seventhDesc: "Specific tools/platforms used, and security/compliance maturity (e.g. SOC 2, existing tooling) — candidates read this as how seriously the company invests in the function.",
+    faqDesc: "Proof points: funding stage, notable investors, compliance certifications, notable customers, revenue growth."
+  }),
+  content_comms: buildTemplate({
+    teamLabel: "Team composition signal",
+    teamDesc: "Does it say the seniority mix or size of the content/comms team?",
+    currentWorkDesc: "Concrete detail on current channels, publications, or press relationships being worked, not vague 'tell our story' language.",
+    testimonialsLabel: "Team testimonials",
+    testimonialsDesc: "Quotes from current content/comms team members.",
+    roleDesc: "Specific editorial ownership and creative autonomy (voice, channels, formats) — not generic 'strong writer' language with no real scope.",
+    seventhKey: "tools_process", seventhLabel: "Channels and reach",
+    seventhDesc: "Specific channels/platforms owned and any existing audience or press relationships — content candidates want to know the reach they'd be working with.",
+    faqDesc: "Proof points: press coverage, notable publications, funding stage, notable investors, follower/audience numbers, revenue growth."
+  }),
+  general: [
+    { key: "mission", label: "Mission",
+      desc: "Why the company exists, beyond the product description." },
+    { key: "current_work", label: "What the team currently works on",
+      desc: "Concrete, specific detail about real current priorities and projects — not vague language." },
+    { key: "role", label: "The role",
+      desc: "Specific, interesting problems or outcomes this person owns — not a generic task list." },
+    { key: "qualifications", label: "Qualifications",
+      desc: "Checks for generic/bloated requirement lists, and whether it encourages applying even without meeting every requirement." },
+    { key: "interview_process", label: "Interview process",
+      desc: "Number of rounds and rough timeline, so candidates know what to expect." },
+    { key: "faq", label: "FAQ / proof points",
+      desc: "Funding, notable customers or logos, revenue growth, other concrete signals of traction." }
+  ]
+};
+
+const roleSelect = document.getElementById('role-select');
+const jdInput = document.getElementById('jd-input');
+const charCount = document.getElementById('char-count');
+const gradeBtn = document.getElementById('grade-btn');
+const sampleBtn = document.getElementById('sample-btn');
+const loading = document.getElementById('loading');
+const errorMsg = document.getElementById('error-msg');
+const results = document.getElementById('results');
+const summaryText = document.getElementById('summary-text');
+const scoreLine = document.getElementById('score-line');
+const sectionsEl = document.getElementById('sections');
+
+jdInput.addEventListener('input', () => {
+  charCount.textContent = jdInput.value.length + ' characters';
+});
+
+sampleBtn.addEventListener('click', () => {
+  jdInput.value = SAMPLE_JD[roleSelect.value] || SAMPLE_JD.engineering;
+  charCount.textContent = jdInput.value.length + ' characters';
+});
+
+function repairJsonNewlines(str){
+  let out = '';
+  let inString = false;
+  let escapeNext = false;
+  for (let i = 0; i < str.length; i++){
+    const ch = str[i];
+    if (escapeNext){ out += ch; escapeNext = false; continue; }
+    if (ch === '\\'){ out += ch; escapeNext = true; continue; }
+    if (ch === '"'){ inString = !inString; out += ch; continue; }
+    if (inString && ch === '\n'){ out += '\\n'; continue; }
+    if (inString && ch === '\r'){ continue; }
+    if (inString && ch === '\t'){ out += '\\t'; continue; }
+    out += ch;
+  }
+  return out;
+}
+
+const ROLE_LABEL_MAP = {
+  engineering: "Engineering", data_ml: "Data / analytics / ML", product: "Product", design: "Design",
+  sales: "Sales", marketing: "Marketing", bd_partnerships: "Business development / partnerships",
+  customer_success: "Customer success / support", people_hr: "People / HR / recruiting",
+  operations: "Operations", finance: "Finance / accounting", legal: "Legal / compliance",
+  it_security: "IT / security", content_comms: "Content / communications / PR", general: "General"
+};
+
+async function classifyDepartment(jd){
+  const keys = Object.keys(ROLE_TEMPLATES);
+  const prompt = `Which department does this job description belong to? Choose exactly one key from this list, based on the actual role described (not the dropdown a user might have picked): ${keys.join(', ')}.
+
+Respond with ONLY the key, nothing else — no punctuation, no explanation.
+
+Job description:
+"""
+${jd.slice(0, 3000)}
+"""`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 20,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  const data = await response.json();
+  const textBlock = data.content.find(b => b.type === "text");
+  const guess = (textBlock?.text || '').trim().toLowerCase().replace(/[^a-z_]/g, '');
+  return keys.includes(guess) ? guess : null;
+}
+
+let lastAnalysis = null;
+
+async function checkJD(){
+  const jd = jdInput.value.trim();
+  if (!jd){
+    errorMsg.textContent = 'Paste a job description first.';
+    return;
+  }
+  const selectedRole = roleSelect.value;
+  const stateCode = document.getElementById('state-select').value;
+  const deptNote = document.getElementById('dept-detect-note');
+  deptNote.textContent = '';
+
+  errorMsg.textContent = '';
+  loading.style.display = 'flex';
+  gradeBtn.disabled = true;
+  results.style.display = 'none';
+  document.getElementById('draft-panel').style.display = 'none';
+
+  let role = selectedRole;
+  try {
+    const detected = await classifyDepartment(jd);
+    if (detected && detected !== selectedRole){
+      role = detected;
+      roleSelect.value = detected;
+      deptNote.textContent = `Detected as ${ROLE_LABEL_MAP[detected] || detected} based on the job description — switched from ${ROLE_LABEL_MAP[selectedRole] || selectedRole}. Change the dropdown and re-check if that's wrong.`;
+    }
+  } catch (e) {
+    // detection failed, fall back to whatever was selected
+  }
+
+  const template = ROLE_TEMPLATES[role];
+  const roleLabel = ROLE_LABEL_MAP[role] || "General";
+  const sectionList = template.map(s => `- "${s.key}": ${s.label} — ${s.desc}`).join('\n');
+
+  const prompt = `You are reviewing a ${roleLabel} job description for an early-stage startup with no brand recognition, trying to attract strong applicants who have plenty of other options. Judge it specifically through what actually attracts ${roleLabel} candidates — the psychology of what this specific type of candidate weighs is different from other departments (e.g. a salesperson evaluates comp structure and quota transparency first; an engineer weighs technical problems and team seniority; a designer weighs craft autonomy and portfolio impact). Judge it ONLY against the specific, concrete checklist below — do not add generic opinions outside this list, but do bring that department-specific lens to each note.
+
+IMPORTANT TONE: not every company will want or need every item on this checklist — a testimonials section, exact comp numbers, or a formal FAQ may genuinely not fit some companies' style or stage. So frame everything as an optional way to strengthen the post and add more color, never as a deficiency, gap, or something "wrong" with the JD. Write notes like "you could add a line about..." or "consider mentioning...", not "this is missing" or "this fails to...". The person reading this should feel like they're getting a few good ideas, not a critique.
+
+Checklist (in the order a well-built job post should follow):
+${sectionList}
+
+For each item, decide a status:
+- "present" — the section exists and is specific/concrete
+- "generic" — the section exists but is vague, bloated, or boilerplate (explain exactly what makes it generic, quoting or referencing the actual text, framed as a suggestion to sharpen it rather than a criticism)
+- "missing" — the section is absent entirely (frame the note as an optional idea to consider adding, not a requirement or failure)
+
+For the "team_composition" item specifically, treat it as a helpful suggestion, not a failure — if absent, just note what info would help and word the note as an opinion suggestion, not a hard requirement.
+
+For "qualifications", explicitly check whether the post encourages people to apply even if they don't meet every requirement, and mention that in the note.
+
+For any item with status "missing" or "generic", also write a short "example" — one to two sentences showing what a strong version of that section could look like. Ground it in this specific company/role wherever the JD gives you real details to work with (company name, product, industry, stage) rather than a generic template line; where the JD gives you nothing to anchor on, write a plausible realistic example for a startup in that situation rather than a placeholder. For items with status "present", leave "example" as an empty string.
+
+Separately from the checklist, also write "candidate_mindset": 3-4 short insights into what a genuinely strong ${roleLabel} candidate is actually weighing when they read a post like this one — the psychology and market context behind their decision, not a restatement of the checklist items. Ground these in the specific seniority level, stage, or context this JD implies wherever you can infer it (e.g. a senior candidate reads differently than a new grad; a Series A company reads differently than a bootstrapped one) rather than generic truisms that could apply to any job post. These should teach the founder something about how their audience actually thinks, not repeat advice already given elsewhere in this response.
+
+Exactly one of these insights should specifically address time-to-fill and competitive urgency dynamics for this role's department and inferred seniority level — e.g. whether strong candidates at this level are typically fielding multiple offers and moving fast, whether this type of role tends to sit open longer because the pool is thin, or how the company's own pace of process (not just the posting) affects whether they lose good candidates. Keep this qualitative and reasoned, not a fabricated statistic like a specific number of days.
+
+Draw on this verified research where it's relevant to ${roleLabel}:
+- General candidate research: roughly 70% of the workforce is passively employed, not actively job-hunting, so a post has to earn attention rather than just list requirements. 76% of job seekers want real detail on what makes a company worth working at, and employee stories/testimonials are trusted more than polished career-page copy. Work-life balance consistently ranks as a top overall priority across candidate-experience surveys.
+- Engineering-specific (Stack Overflow 2025 Developer Survey, 49,000+ respondents): the top drivers of developer job satisfaction are explicitly "autonomy and trust," "competitive pay," and "solving real-world problems" — ahead of tech stack novelty. Developers rate a "reputation for quality" and reliable systems above flashy AI-tool integration.
+
+If ${roleLabel} isn't covered by the research above, do not invent statistics or fake citations for it — reason from sound, well-established recruiting and workplace-psychology principles instead, and keep the insight qualitative rather than presenting a fabricated number as fact.
+
+Respond with ONLY valid JSON, no markdown fences, no preamble, in exactly this shape:
+
+{
+  "summary": "<2-3 sentence plain-spoken take framed as suggestions to strengthen the post, e.g. 'A few places you could add more color: ...' — never framed as gaps, problems, or criticism, specific to this JD>",
+  "found_count": <integer, number of items with status "present">,
+  "total_count": <integer, total checklist items excluding team_composition>,
+  "salary_range_mentioned": <true or false — whether the JD states any specific salary/compensation range or figure>,
+  "candidate_mindset": ["<insight 1>", "<insight 2>", "<insight 3>"],
+  "sections": [
+    {"key": "<key from checklist>", "status": "present" | "generic" | "missing", "note": "<one to two sentences, specific to this JD, not generic advice>", "example": "<short concrete example if missing/generic, else empty string>"}
+  ]
+}
+
+CRITICAL JSON FORMATTING RULES:
+- Output must be a single valid JSON object and nothing else.
+- Escape every line break inside string values as \\n, never an actual newline character.
+- Escape double quotes inside string values as \\".
+- Include one entry per checklist item, in the same order as the checklist above.
+
+Job description:
+"""
+${jd}
+"""`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const textBlock = data.content.find(b => b.type === "text");
+    if (!textBlock) throw new Error("No response");
+    let cleaned = textBlock.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      parsed = JSON.parse(repairJsonNewlines(cleaned));
+    }
+    renderResults(parsed, template, roleLabel);
+    complianceMessage(stateCode, !!parsed.salary_range_mentioned);
+    lastAnalysis = { jd, role, roleLabel, stateCode, data: parsed, template };
+    saveHistoryEntry(lastAnalysis);
+  } catch (err) {
+    console.error(err);
+    errorMsg.textContent = "Couldn't parse the response — try again, or try a shorter job description.";
+  } finally {
+    loading.style.display = 'none';
+    gradeBtn.disabled = false;
+  }
+}
+
+function statusLabel(status){
+  if (status === 'present') return 'covered';
+  if (status === 'generic') return 'could be sharper';
+  return 'worth considering';
+}
+
+function renderResults(data, template, roleLabel){
+  summaryText.textContent = data.summary || '';
+  scoreLine.innerHTML = `<b>${data.found_count ?? '—'}</b> of <b>${data.total_count ?? template.length}</b> sections already have good detail — the rest are just ideas below`;
+
+  const mindsetEl = document.getElementById('mindset');
+  const mindsetList = document.getElementById('mindset-list');
+  if (data.candidate_mindset && data.candidate_mindset.length){
+    document.getElementById('mindset-title').textContent = `What strong ${roleLabel} candidates are actually weighing`;
+    mindsetList.innerHTML = '';
+    data.candidate_mindset.forEach(insight => {
+      const li = document.createElement('li');
+      li.textContent = insight;
+      mindsetList.appendChild(li);
+    });
+    mindsetEl.style.display = 'block';
+  } else {
+    mindsetEl.style.display = 'none';
+  }
+
+  sectionsEl.innerHTML = '';
+  const byKey = {};
+  (data.sections || []).forEach(s => byKey[s.key] = s);
+
+  template.forEach((tpl, i) => {
+    const result = byKey[tpl.key] || { status: 'missing', note: '', example: '' };
+    const div = document.createElement('div');
+    div.className = 'sec';
+    const exampleHTML = result.example
+      ? `<div class="example"><b>example</b>${result.example}</div>`
+      : '';
+    div.innerHTML = `
+      <div class="sec-head">
+        <span class="sec-label"><span class="num">${i + 1}.</span>${tpl.label}${tpl.suggestion_only ? ' (suggestion)' : ''}</span>
+        <span class="sec-status ${result.status}">${statusLabel(result.status)}</span>
+      </div>
+      <p class="note">${result.note || tpl.desc}</p>
+      ${exampleHTML}
+    `;
+    sectionsEl.appendChild(div);
+  });
+
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+gradeBtn.addEventListener('click', checkJD);
+
+async function draftStrongerVersion(){
+  if (!lastAnalysis) return;
+  const draftBtn = document.getElementById('draft-btn');
+  const draftLoading = document.getElementById('draft-loading');
+  const draftPanel = document.getElementById('draft-panel');
+  const draftBody = document.getElementById('draft-body');
+
+  const suggestionsList = (lastAnalysis.data.sections || [])
+    .filter(s => s.status !== 'present' && (s.note || s.example))
+    .map(s => `- ${s.key}: ${s.note}${s.example ? ` (example: ${s.example})` : ''}`)
+    .join('\n');
+
+  if (!suggestionsList){
+    draftBody.textContent = "Every section already looked solid — no suggestions to apply.";
+    draftPanel.style.display = 'block';
+    return;
+  }
+
+  draftBtn.disabled = true;
+  draftLoading.style.display = 'flex';
+  draftPanel.style.display = 'none';
+
+  const stateTier = lastAnalysis.stateCode ? SALARY_LAW_TIER[lastAnalysis.stateCode] : null;
+  const salaryNote = (stateTier === 'posting' || stateTier === 'posting_ontario' || stateTier === 'eu_directive')
+    ? `\nThis role is based in a market that legally requires (or strongly expects) a salary range in or around the posting — if the original doesn't include one, add a reasonable placeholder range in brackets like [$X - $Y] for the founder to fill in.`
+    : '';
+
+  const prompt = `You are editing a ${lastAnalysis.roleLabel} job description for an early-stage startup. Apply ONLY the specific suggestions below to the original job description — do not invent unrelated changes, do not remove anything that already works well, and keep the founder's original voice and facts intact wherever they're already stated.
+
+Suggestions to apply:
+${suggestionsList}${salaryNote}
+
+Original job description:
+"""
+${lastAnalysis.jd}
+"""
+
+Output ONLY the revised job description as plain text — no preamble, no commentary, no markdown formatting, no headers like "Revised version:". Just the job post itself, ready to paste and publish.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const textBlock = data.content.find(b => b.type === "text");
+    if (!textBlock) throw new Error("No response");
+    draftBody.textContent = textBlock.text.trim();
+    draftPanel.style.display = 'block';
+    draftPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    console.error(err);
+    draftBody.textContent = "Couldn't generate a draft just now — try again.";
+    draftPanel.style.display = 'block';
+  } finally {
+    draftBtn.disabled = false;
+    draftLoading.style.display = 'none';
+  }
+}
+
+document.getElementById('draft-btn').addEventListener('click', draftStrongerVersion);
+document.getElementById('draft-copy-btn').addEventListener('click', () => {
+  const btn = document.getElementById('draft-copy-btn');
+  navigator.clipboard.writeText(document.getElementById('draft-body').textContent).then(() => {
+    btn.textContent = 'copied';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  });
+});
+
+const HISTORY_KEY = 'jd-check-history';
+
+async function saveHistoryEntry(analysis){
+  try {
+    let list = [];
+    try {
+      const existing = await window.storage.get(HISTORY_KEY, false);
+      if (existing && existing.value) list = JSON.parse(existing.value);
+    } catch (e) { /* no existing history yet */ }
+
+    list.unshift({
+      ts: Date.now(),
+      role: analysis.roleLabel,
+      state: (analysis.stateCode && LOCATION_NAME[analysis.stateCode]) || '',
+      found: analysis.data.found_count,
+      total: analysis.data.total_count,
+      titleGuess: (analysis.jd.split('\n').find(l => l.trim().length > 0) || '').slice(0, 60)
+    });
+    list = list.slice(0, 25);
+
+    await window.storage.set(HISTORY_KEY, JSON.stringify(list), false);
+    renderHistory(list);
+  } catch (err) {
+    console.error('Could not save history', err);
+  }
+}
+
+function renderHistory(list){
+  const wrap = document.getElementById('history-wrap');
+  const listEl = document.getElementById('history-list');
+  if (!list || !list.length){
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  listEl.innerHTML = '';
+  list.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    const date = new Date(entry.ts);
+    const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    div.innerHTML = `
+      <span class="hi-left"><b>${entry.found}/${entry.total}</b> — ${entry.role}${entry.state ? ' · ' + entry.state : ''} — ${entry.titleGuess || 'untitled'}</span>
+      <span class="hi-right">${dateStr}</span>
+    `;
+    listEl.appendChild(div);
+  });
+}
+
+async function loadHistory(){
+  try {
+    const existing = await window.storage.get(HISTORY_KEY, false);
+    if (existing && existing.value){
+      renderHistory(JSON.parse(existing.value));
+    }
+  } catch (err) {
+    // no history yet, leave hidden
+  }
+}
+
+document.getElementById('clear-history-btn').addEventListener('click', async () => {
+  try {
+    await window.storage.delete(HISTORY_KEY, false);
+  } catch (e) { /* already empty */ }
+  renderHistory([]);
+});
+
+loadHistory();
+</script>
+</body>
+</html>
